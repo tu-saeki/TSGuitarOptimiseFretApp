@@ -12,6 +12,7 @@
 		ABB210741F3990C80014887C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ABB210721F3990C80014887C /* Main.storyboard */; };
 		ABB210761F3990C80014887C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB210751F3990C80014887C /* Assets.xcassets */; };
 		ABB210791F3990C80014887C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ABB210771F3990C80014887C /* LaunchScreen.storyboard */; };
+		ABB210811F3991400014887C /* KB.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210801F3991400014887C /* KB.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		ABB210751F3990C80014887C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABB210781F3990C80014887C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ABB2107A1F3990C80014887C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		ABB210801F3991400014887C /* KB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KB.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 				ABB210751F3990C80014887C /* Assets.xcassets */,
 				ABB210771F3990C80014887C /* LaunchScreen.storyboard */,
 				ABB2107A1F3990C80014887C /* Info.plist */,
+				ABB210801F3991400014887C /* KB.swift */,
 			);
 			path = TSGuitarOptimiseFretApp;
 			sourceTree = "<group>";
@@ -138,6 +141,7 @@
 			files = (
 				ABB210711F3990C80014887C /* ViewController.swift in Sources */,
 				ABB2106F1F3990C80014887C /* AppDelegate.swift in Sources */,
+				ABB210811F3991400014887C /* KB.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +303,7 @@
 				ABB2107F1F3990C80014887C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
