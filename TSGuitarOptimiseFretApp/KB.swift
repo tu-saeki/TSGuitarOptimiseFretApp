@@ -467,15 +467,107 @@ class KB {
     }
     
     // 音階値から、運指コストが最小となる運指を取得する
+    // （単音弾きに対応）
     // @param tones [音階値]
     // @param numSearch 計算回数
     // @return [[弦ID, フレットID, 指ID] ... ]
     static func getOptimiseStringIdFretIdFingerIds(tones : [Int], numSearch : Int) -> [[Int]] {
+
+        //-------------------------------------------------
+        // 各音階値が取りうるフレット一覧を求める
+        //-------------------------------------------------
+        
+        // 各音階値に対して、各弦での取りうるフレットを格納する一時変数を用意する
+        // [[1音目の6弦でのフレット,..., 1音目の1弦でのフレット], [2音目の6弦でのフレット,...], ...]
+        var tmpFretIdsAllTones : [[Int]] = []
+        
+        // 各音階値に対して、各弦での取りうるフレットを求める
+        for i in 0 ..< tones.count {
+            
+            // 1音に対して、各弦での取りうるフレットIDを求める
+            let tmpFretIdsInSingleTone : [Int] = getFretIdsFromTone(tone: tones[i])
+            
+            // 配列に追加する
+            tmpFretIdsAllTones.append(tmpFretIdsInSingleTone)
+        }
+        
+        // 各音階値について、フレットが押さえられる弦IDを格納する一時変数を用意する
+        // [[1音目の1つ目の弦ID,..., 1音目のn番目の弦ID], [2音目の1つ目の弦ID, ... ], ...]
+        var tmpUsableStringIdsAllTones : [[Int]] = []
+        for i in 0 ..< tmpFretIdsAllTones.count {
+            
+            // 一つの音階値について、フレットで押さえられる弦ID一覧を取得する
+            var tmpUsableStringIdsInSingleTone : [Int] = []
+            for j in 0 ..< MUSIC_GUITAR_STRINGS_NAMES.count {
+                
+                if(tmpFretIdsAllTones[i][j] < 0) {
+                    
+                    tmpUsableStringIdsInSingleTone.append(j)
+                }
+            }
+            
+            // 配列に追加する
+            tmpUsableStringIdsAllTones.append(tmpUsableStringIdsInSingleTone)
+        }
+        
+        //-------------------------------------------------
+        // 最も移動距離が短いフレットの組み合わせを求める
+        //-------------------------------------------------
+        
+        // 2音間の距離をそれぞれ求める
+        // [[[distance(1音目の1つ目の弦フレット,2音目の1つ目の弦フレット), ... , [distance(1音目の2つ目の弦フレット, 2音目の1つ目の弦フレット), ... ], ... ]
+        var tmpDistanceAllTones : [[[Double]]] = []
+        for i in 0 ..< tmpUsableStringIdsAllTones.count - 1 {
+            
+            // 隣同士の弦フレット間の距離を求める
+            var tmpDistanceInTwoTones : [[Double]] = []
+            for j in 0 ..< tmpUsableStringIdsAllTones[i].count {
+                
+                // i音目のjつ目の弦フレットと、i+1音目のkつ目の弦フレット間の距離を求める
+                for k in 0 ..< tmpUsableStringIdsAllTones[i + 1].count {
+                    
+                    let tmpBeforeStringId = tmpUsableStringIdsAllTones[i][j]
+                    let tmpAfterStringId = tmpUsableStringIdsAllTones[i + 1][k]
+                    let tmpBeforeFretId = tmpFretIdsAllTones[i][tmpBeforeStringId]
+                    let tmpAfterFretId = tmpFretIdsAllTones[i + 1][tmpAfterStringId]
+                    
+                    let tmpSubStringId = tmpAfterStringId - tmpBeforeStringId
+                    let tmpSubFretId = tmpAfterFretId - tmpBeforeFretId
+                    
+                    tmpDistanceInTwoTones[j][k] = sqrt((Double)(tmpSubStringId * tmpSubStringId + tmpSubFretId * tmpSubFretId))
+                }
+            }
+            
+            // 配列に代入する
+            tmpDistanceAllTones.append(tmpDistanceInTwoTones)
+        }
+        
+        // 暫定：規定計算回数分だけ繰り返す
+        while(true){
+            
+            // 規定回数だけ実施済みの場合には、ループを抜ける
+            if(numSearch <= tmpNumSearch) {
+                
+                break
+            }
+            
+            // 各音階値について、それぞれどの弦で弾くかランダムに決定する
+            var tmpRandomStringIdAllTones : [Int] = []
+            
+            // （これから記述）
+        }
         
         
-        var tmpNumSearch :Int = 0
+        
+        
+        //-------------------------------------------------
+        // 求めた組み合わせについて、指の当て方を求める
+        //-------------------------------------------------
+        
+        var tmpNumSearch : Int = 0
         var minCost : Int = -1
         var minIds : [[Int]] = []
+
         
         // 規定計算回数分だけ繰り返す
         while(true){
@@ -485,10 +577,16 @@ class KB {
                 
                 break
             }
-            
-            // 音を適当に当てはめる
-            
-            
+
+            // 各音階値について、それぞれどの弦で弾くかランダムに決定する
+            var tmpRandomStringIdsAllTones : [Int] = []
+            for i in 0 ..< tmpUsableStringIdsAllTones.count {
+                
+                let tmpRandomStringIdInSingleTone : Int = Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count)))
+                tmpRandomStringIdsAllTones.append(tmpRandomStringIdInSingleTone)
+                
+                // （これから記述）
+            }
         }
         return minIds
     }
