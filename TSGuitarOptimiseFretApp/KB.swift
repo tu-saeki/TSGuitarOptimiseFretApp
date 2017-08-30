@@ -472,6 +472,7 @@ class KB {
     // @return [[弦ID, フレットID, 指ID] ... ]
     static func getOptimiseStringIdFretIdFingerIds(tones : [Int], numSearch : Int) -> [[Int]] {
         
+        
         var tmpNumSearch :Int = 0
         var minCost : Int = -1
         var minIds : [[Int]] = []
