@@ -514,33 +514,38 @@ class KB {
         // 最も移動距離が短いフレットの組み合わせを求める
         //-------------------------------------------------
         
-        // 2音間の距離をそれぞれ求める
-        // [[[distance(1音目の1つ目の弦フレット,2音目の1つ目の弦フレット), ... , [distance(1音目の2つ目の弦フレット, 2音目の1つ目の弦フレット), ... ], ... ]
-        var tmpDistanceAllTones : [[[Double]]] = []
-        for i in 0 ..< tmpUsableStringIdsAllTones.count - 1 {
-            
-            // 隣同士の弦フレット間の距離を求める
-            var tmpDistanceInTwoTones : [[Double]] = []
-            for j in 0 ..< tmpUsableStringIdsAllTones[i].count {
-                
-                // i音目のjつ目の弦フレットと、i+1音目のkつ目の弦フレット間の距離を求める
-                for k in 0 ..< tmpUsableStringIdsAllTones[i + 1].count {
-                    
-                    let tmpBeforeStringId = tmpUsableStringIdsAllTones[i][j]
-                    let tmpAfterStringId = tmpUsableStringIdsAllTones[i + 1][k]
-                    let tmpBeforeFretId = tmpFretIdsAllTones[i][tmpBeforeStringId]
-                    let tmpAfterFretId = tmpFretIdsAllTones[i + 1][tmpAfterStringId]
-                    
-                    let tmpSubStringId = tmpAfterStringId - tmpBeforeStringId
-                    let tmpSubFretId = tmpAfterFretId - tmpBeforeFretId
-                    
-                    tmpDistanceInTwoTones[j][k] = sqrt((Double)(tmpSubStringId * tmpSubStringId + tmpSubFretId * tmpSubFretId))
-                }
-            }
-            
-            // 配列に代入する
-            tmpDistanceAllTones.append(tmpDistanceInTwoTones)
-        }
+//        // 2音間の距離をそれぞれ求める
+//        // [[[distance(1音目の1つ目の弦フレット,2音目の1つ目の弦フレット), ... , [distance(1音目の2つ目の弦フレット, 2音目の1つ目の弦フレット), ... ], ... ]
+//        var tmpDistanceAllTones : [[[Double]]] = []
+//        for i in 0 ..< tmpUsableStringIdsAllTones.count - 1 {
+//            
+//            // 隣同士の弦フレット間の距離を求める
+//            var tmpDistanceInTwoTones : [[Double]] = []
+//            for j in 0 ..< tmpUsableStringIdsAllTones[i].count {
+//                
+//                // i音目のjつ目の弦フレットと、i+1音目のkつ目の弦フレット間の距離を求める
+//                for k in 0 ..< tmpUsableStringIdsAllTones[i + 1].count {
+//                    
+//                    let tmpBeforeStringId = tmpUsableStringIdsAllTones[i][j]
+//                    let tmpAfterStringId = tmpUsableStringIdsAllTones[i + 1][k]
+//                    let tmpBeforeFretId = tmpFretIdsAllTones[i][tmpBeforeStringId]
+//                    let tmpAfterFretId = tmpFretIdsAllTones[i + 1][tmpAfterStringId]
+//                    
+//                    let tmpSubStringId = tmpAfterStringId - tmpBeforeStringId
+//                    let tmpSubFretId = tmpAfterFretId - tmpBeforeFretId
+//                    
+//                    tmpDistanceInTwoTones[j][k] = sqrt((Double)(tmpSubStringId * tmpSubStringId + tmpSubFretId * tmpSubFretId))
+//                }
+//            }
+//            
+//            // 配列に代入する
+//            tmpDistanceAllTones.append(tmpDistanceInTwoTones)
+//        }
+        
+        var tmpNumSearch : Int = 0
+        
+        var tmpMinCost : Int = -1
+        var tmpMinStringIdFretIdFingerIdsAllTones : [[Int]] = []
         
         // 暫定：規定計算回数分だけ繰り返す
         while(true){
@@ -551,44 +556,67 @@ class KB {
                 break
             }
             
-            // 各音階値について、それぞれどの弦で弾くかランダムに決定する
+            // 各音階値について、それぞれどの弦IDで弾くかランダムに決定する
             var tmpRandomStringIdAllTones : [Int] = []
             
-            // （これから記述）
-        }
-        
-        
-        
-        
-        //-------------------------------------------------
-        // 求めた組み合わせについて、指の当て方を求める
-        //-------------------------------------------------
-        
-        var tmpNumSearch : Int = 0
-        var minCost : Int = -1
-        var minIds : [[Int]] = []
-
-        
-        // 規定計算回数分だけ繰り返す
-        while(true){
-            
-            //　規定計算回数だけ実施済みの場合には、ループを抜ける
-            if(numSearch <= tmpNumSearch){
-                
-                break
-            }
-
-            // 各音階値について、それぞれどの弦で弾くかランダムに決定する
-            var tmpRandomStringIdsAllTones : [Int] = []
             for i in 0 ..< tmpUsableStringIdsAllTones.count {
                 
-                let tmpRandomStringIdInSingleTone : Int = Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count)))
-                tmpRandomStringIdsAllTones.append(tmpRandomStringIdInSingleTone)
-                
-                // （これから記述）
+                tmpRandomStringIdAllTones.append(Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count))))
             }
+            
+            // 上記の音階値を利用する場合のフレットID、弦IDをそれぞれ求める
+            var tmpRandomStringIdFretIdFingerIdsAllTones : [[Int]] = []
+            
+            for i in 0 ..< tmpRandomStringIdAllTones.count {
+                
+                // フレットIDを求める
+                var tmpRandomFretIdInSingleTone = tmpFretIdsAllTones[tmpRandomStringIdAllTones[i]]
+                
+                // 指IDを適当に決める
+                var tmpFingerIds : [Int] = [
+                    MUSIC_GUITAR_FINGERS_ID_MOTHER,
+                    MUSIC_GUITAR_FINGERS_ID_BROTHER,
+                    MUSIC_GUITAR_FINGERS_ID_SISTER,
+                    MUSIC_GUITAR_FINGERS_ID_KIDS
+                ]
+                var tmpRamdomFingerIdInSingleTone = tmpFingerIds[Int(arc4random_uniform(4))]
+                if(tmpRandomFretIdInSingleTone[i] < 0) {
+                    
+                    tmpRamdomFingerIdInSingleTone = 0
+                }
+                
+                // 弦ID、フレットID、指IDをセットで配列に格納する
+                tmpRandomStringIdFretIdFingerIdsAllTones.append([tmpRandomStringIdAllTones[i], tmpRamdomFingerIdInSingleTone, tmpRamdomFingerIdInSingleTone])
+            }
+            
+            // この時のコストを求める
+            var tmpRandomCost = calcGuitarSingleFingersTotalCost(stringIdFretIdFingerIds: tmpRandomStringIdFretIdFingerIdsAllTones)
+            
+            // コストが最小の場合には、候補とする
+            if(tmpMinCost < 0 || tmpMinCost > tmpRandomCost){
+                
+                // 運指を一時保管リストとして保管する
+                for i in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones.count {
+
+                    var tmpStringIdFretIdFingerIds : [Int] = []
+                    
+                    for j in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones[i].count {
+                    
+                        tmpStringIdFretIdFingerIds.append(tmpRandomStringIdFretIdFingerIdsAllTones[i][j])
+                    }
+                    tmpMinStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIds)
+                }
+                
+                // 最小コストを保管する
+                tmpMinCost = tmpRandomCost
+            }
+            
+            // カウント用変数に追加する
+            tmpNumSearch = tmpNumSearch + 1
         }
-        return minIds
+        
+        
+        return tmpMinStringIdFretIdFingerIdsAllTones
     }
     
     

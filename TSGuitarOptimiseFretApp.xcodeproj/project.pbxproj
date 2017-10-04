@@ -8,22 +8,24 @@
 
 /* Begin PBXBuildFile section */
 		ABB2106F1F3990C80014887C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB2106E1F3990C80014887C /* AppDelegate.swift */; };
-		ABB210711F3990C80014887C /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210701F3990C80014887C /* ViewController.swift */; };
 		ABB210741F3990C80014887C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ABB210721F3990C80014887C /* Main.storyboard */; };
 		ABB210761F3990C80014887C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ABB210751F3990C80014887C /* Assets.xcassets */; };
 		ABB210791F3990C80014887C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ABB210771F3990C80014887C /* LaunchScreen.storyboard */; };
 		ABB210811F3991400014887C /* KB.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210801F3991400014887C /* KB.swift */; };
+		ABB210ED1F5FC4470014887C /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210EC1F5FC4470014887C /* MainViewController.swift */; };
+		ABB210F71F84A9AE0014887C /* BkupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210F61F84A9AE0014887C /* BkupViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		ABB2106B1F3990C80014887C /* TSGuitarOptimiseFretApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TSGuitarOptimiseFretApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABB2106E1F3990C80014887C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
-		ABB210701F3990C80014887C /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		ABB210731F3990C80014887C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		ABB210751F3990C80014887C /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		ABB210781F3990C80014887C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ABB2107A1F3990C80014887C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ABB210801F3991400014887C /* KB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KB.swift; sourceTree = "<group>"; };
+		ABB210EC1F5FC4470014887C /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
+		ABB210F61F84A9AE0014887C /* BkupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BkupViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,12 +59,13 @@
 			isa = PBXGroup;
 			children = (
 				ABB2106E1F3990C80014887C /* AppDelegate.swift */,
-				ABB210701F3990C80014887C /* ViewController.swift */,
 				ABB210721F3990C80014887C /* Main.storyboard */,
 				ABB210751F3990C80014887C /* Assets.xcassets */,
 				ABB210771F3990C80014887C /* LaunchScreen.storyboard */,
 				ABB2107A1F3990C80014887C /* Info.plist */,
 				ABB210801F3991400014887C /* KB.swift */,
+				ABB210EC1F5FC4470014887C /* MainViewController.swift */,
+				ABB210F61F84A9AE0014887C /* BkupViewController.swift */,
 			);
 			path = TSGuitarOptimiseFretApp;
 			sourceTree = "<group>";
@@ -139,9 +142,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				ABB210711F3990C80014887C /* ViewController.swift in Sources */,
+				ABB210F71F84A9AE0014887C /* BkupViewController.swift in Sources */,
 				ABB2106F1F3990C80014887C /* AppDelegate.swift in Sources */,
 				ABB210811F3991400014887C /* KB.swift in Sources */,
+				ABB210ED1F5FC4470014887C /* MainViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
