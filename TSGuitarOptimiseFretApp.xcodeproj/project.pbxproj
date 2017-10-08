@@ -14,6 +14,15 @@
 		ABB210811F3991400014887C /* KB.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210801F3991400014887C /* KB.swift */; };
 		ABB210ED1F5FC4470014887C /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210EC1F5FC4470014887C /* MainViewController.swift */; };
 		ABB210F71F84A9AE0014887C /* BkupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = ABB210F61F84A9AE0014887C /* BkupViewController.swift */; };
+		ABB211091F8A3CFC0014887C /* felt_background_yellow.jpg in Resources */ = {isa = PBXBuildFile; fileRef = ABB211031F8A3CFC0014887C /* felt_background_yellow.jpg */; };
+		ABB2110A1F8A3CFC0014887C /* felt_background_original.jpg in Resources */ = {isa = PBXBuildFile; fileRef = ABB211041F8A3CFC0014887C /* felt_background_original.jpg */; };
+		ABB2110B1F8A3CFC0014887C /* felt_background_orange.jpg in Resources */ = {isa = PBXBuildFile; fileRef = ABB211051F8A3CFC0014887C /* felt_background_orange.jpg */; };
+		ABB2110C1F8A3CFC0014887C /* felt_background_green.jpg in Resources */ = {isa = PBXBuildFile; fileRef = ABB211061F8A3CFC0014887C /* felt_background_green.jpg */; };
+		ABB2110D1F8A3CFC0014887C /* felt_background_darkblue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = ABB211071F8A3CFC0014887C /* felt_background_darkblue.jpg */; };
+		ABB2110E1F8A3CFC0014887C /* felt_background_blue.jpg in Resources */ = {isa = PBXBuildFile; fileRef = ABB211081F8A3CFC0014887C /* felt_background_blue.jpg */; };
+		ABB211131F8A63700014887C /* fret_not_pressing.png in Resources */ = {isa = PBXBuildFile; fileRef = ABB211111F8A63700014887C /* fret_not_pressing.png */; };
+		ABB211141F8A63700014887C /* fret_pressing.png in Resources */ = {isa = PBXBuildFile; fileRef = ABB211121F8A63700014887C /* fret_pressing.png */; };
+		ABB211171F8A7BA50014887C /* ios in Resources */ = {isa = PBXBuildFile; fileRef = ABB211161F8A7BA50014887C /* ios */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +35,15 @@
 		ABB210801F3991400014887C /* KB.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KB.swift; sourceTree = "<group>"; };
 		ABB210EC1F5FC4470014887C /* MainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		ABB210F61F84A9AE0014887C /* BkupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BkupViewController.swift; sourceTree = "<group>"; };
+		ABB211031F8A3CFC0014887C /* felt_background_yellow.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = felt_background_yellow.jpg; sourceTree = "<group>"; };
+		ABB211041F8A3CFC0014887C /* felt_background_original.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = felt_background_original.jpg; sourceTree = "<group>"; };
+		ABB211051F8A3CFC0014887C /* felt_background_orange.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = felt_background_orange.jpg; sourceTree = "<group>"; };
+		ABB211061F8A3CFC0014887C /* felt_background_green.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = felt_background_green.jpg; sourceTree = "<group>"; };
+		ABB211071F8A3CFC0014887C /* felt_background_darkblue.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = felt_background_darkblue.jpg; sourceTree = "<group>"; };
+		ABB211081F8A3CFC0014887C /* felt_background_blue.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = felt_background_blue.jpg; sourceTree = "<group>"; };
+		ABB211111F8A63700014887C /* fret_not_pressing.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fret_not_pressing.png; sourceTree = "<group>"; };
+		ABB211121F8A63700014887C /* fret_pressing.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fret_pressing.png; sourceTree = "<group>"; };
+		ABB211161F8A7BA50014887C /* ios */ = {isa = PBXFileReference; lastKnownFileType = folder; path = ios; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +76,16 @@
 		ABB2106D1F3990C80014887C /* TSGuitarOptimiseFretApp */ = {
 			isa = PBXGroup;
 			children = (
+				ABB211181F8A7BA90014887C /* img */,
 				ABB2106E1F3990C80014887C /* AppDelegate.swift */,
+				ABB211111F8A63700014887C /* fret_not_pressing.png */,
+				ABB211121F8A63700014887C /* fret_pressing.png */,
+				ABB211031F8A3CFC0014887C /* felt_background_yellow.jpg */,
+				ABB211041F8A3CFC0014887C /* felt_background_original.jpg */,
+				ABB211051F8A3CFC0014887C /* felt_background_orange.jpg */,
+				ABB211061F8A3CFC0014887C /* felt_background_green.jpg */,
+				ABB211071F8A3CFC0014887C /* felt_background_darkblue.jpg */,
+				ABB211081F8A3CFC0014887C /* felt_background_blue.jpg */,
 				ABB210721F3990C80014887C /* Main.storyboard */,
 				ABB210751F3990C80014887C /* Assets.xcassets */,
 				ABB210771F3990C80014887C /* LaunchScreen.storyboard */,
@@ -68,6 +95,14 @@
 				ABB210F61F84A9AE0014887C /* BkupViewController.swift */,
 			);
 			path = TSGuitarOptimiseFretApp;
+			sourceTree = "<group>";
+		};
+		ABB211181F8A7BA90014887C /* img */ = {
+			isa = PBXGroup;
+			children = (
+				ABB211161F8A7BA50014887C /* ios */,
+			);
+			name = img;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -130,7 +165,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				ABB210791F3990C80014887C /* LaunchScreen.storyboard in Resources */,
+				ABB211131F8A63700014887C /* fret_not_pressing.png in Resources */,
+				ABB2110C1F8A3CFC0014887C /* felt_background_green.jpg in Resources */,
 				ABB210761F3990C80014887C /* Assets.xcassets in Resources */,
+				ABB211091F8A3CFC0014887C /* felt_background_yellow.jpg in Resources */,
+				ABB2110A1F8A3CFC0014887C /* felt_background_original.jpg in Resources */,
+				ABB211171F8A7BA50014887C /* ios in Resources */,
+				ABB2110B1F8A3CFC0014887C /* felt_background_orange.jpg in Resources */,
+				ABB2110E1F8A3CFC0014887C /* felt_background_blue.jpg in Resources */,
+				ABB211141F8A63700014887C /* fret_pressing.png in Resources */,
+				ABB2110D1F8A3CFC0014887C /* felt_background_darkblue.jpg in Resources */,
 				ABB210741F3990C80014887C /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

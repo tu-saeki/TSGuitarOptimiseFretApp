@@ -16,6 +16,63 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     
     // ピッカビューの回転角
     var rotationAngle : CGFloat!
+    
+    // ラベル
+    @IBOutlet var stringLabel : UILabel!
+    @IBOutlet var fretLabel : UILabel!
+    @IBOutlet var fingerLabel : UILabel!
+    @IBOutlet var howtoLabel : UILabel!
+    @IBOutlet var howtoLabelImageView : UIImageView!
+    
+    // ボタン
+    @IBOutlet var prevButton : UIButton!
+    @IBOutlet var nextButton : UIButton!
+    @IBOutlet var editButton : UIButton!
+    @IBOutlet var deleteButton : UIButton!
+    @IBOutlet var searchButton : UIButton!
+    
+    // フレットビュー
+    @IBOutlet var stringId0Label : UILabel!
+    @IBOutlet var stringId1Label : UILabel!
+    @IBOutlet var stringId2Label : UILabel!
+    @IBOutlet var stringId3Label : UILabel!
+    @IBOutlet var stringId4Label : UILabel!
+    @IBOutlet var stringId5Label : UILabel!
+    @IBOutlet var fretId0Label : UILabel!
+    @IBOutlet var fretId1Label : UILabel!
+    @IBOutlet var fretId2Label : UILabel!
+    @IBOutlet var openStringId0Label : UILabel!
+    @IBOutlet var openStringId1Label : UILabel!
+    @IBOutlet var openStringId2Label : UILabel!
+    @IBOutlet var openStringId3Label : UILabel!
+    @IBOutlet var openStringId4Label : UILabel!
+    @IBOutlet var openStringId5Label : UILabel!
+    @IBOutlet var fret00ImageView : UIImageView!
+    @IBOutlet var fret01ImageView : UIImageView!
+    @IBOutlet var fret02ImageView : UIImageView!
+    @IBOutlet var fret10ImageView : UIImageView!
+    @IBOutlet var fret11ImageView : UIImageView!
+    @IBOutlet var fret12ImageView : UIImageView!
+    @IBOutlet var fret20ImageView : UIImageView!
+    @IBOutlet var fret21ImageView : UIImageView!
+    @IBOutlet var fret22ImageView : UIImageView!
+    @IBOutlet var fret30ImageView : UIImageView!
+    @IBOutlet var fret31ImageView : UIImageView!
+    @IBOutlet var fret32ImageView : UIImageView!
+    @IBOutlet var fret40ImageView : UIImageView!
+    @IBOutlet var fret41ImageView : UIImageView!
+    @IBOutlet var fret42ImageView : UIImageView!
+    @IBOutlet var fret50ImageView : UIImageView!
+    @IBOutlet var fret51ImageView : UIImageView!
+    @IBOutlet var fret52ImageView : UIImageView!
+    @IBOutlet var fretFretLabel : UILabel!
+    @IBOutlet var fretStringLabel : UILabel!
+    
+    // バックグラウンド関連
+    @IBOutlet var tonesBgImageView : UIImageView!
+    @IBOutlet var tonesTitleBgImageView : UIImageView!
+    @IBOutlet var resultBgImageView : UIImageView!
+    @IBOutlet var resultTitleBgImageView : UIImageView!
 
     // 入力された音階
     var toneIds : [Int] = []
@@ -49,6 +106,24 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
 
         // ピッカービューの同期を取る
         syncPickerView()
+        
+        // ボタンを描画する
+        syncButtonView()
+        
+        // フレットイメージを描画する
+        initFretView()
+        
+        // 背景色を描画する
+        initBgImageViews()
+        
+//        let tmpSystemCorrect : [[Int]] = [[5, 0, 0], [5, 7, 3], [5, 7, 3], [5, 2, 2], [5, 0, 0], [5, 0, 0]]
+//        let tmpUserCorrect : [[Int]] = [[5, 0, 0], [5, 7, 3], [5, 7, 3], [4, 7, 2], [5, 0, 0], [5, 0, 0]]
+//        
+//        let tmpSystemCorrectCost : Int = KB.calcGuitarSingleFingersTotalCost(stringIdFretIdFingerIds: tmpSystemCorrect)
+//        let tmpUserCorrectCost : Int = KB.calcGuitarSingleFingersTotalCost(stringIdFretIdFingerIds: tmpUserCorrect)
+//        
+//        print(String(tmpSystemCorrectCost) + " / " + String(tmpUserCorrectCost))
+        
     }
     
     override func didReceiveMemoryWarning() {
@@ -94,7 +169,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             tmpNumRows = 1
             
         case KB.PICKERVIEW_STRINGFRETFINGER_TAG:
-            tmpNumRows = 3
+            tmpNumRows = 1
             
         default:
             break
@@ -114,24 +189,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             tmpCount = toneNames.count
             
         case KB.PICKERVIEW_STRINGFRETFINGER_TAG:
-            
-            switch (component) {
-                
-            // 弦
-            case 0:
-                tmpCount = stringNames.count
-                
-            // フレット
-            case 1:
-                tmpCount = fretNames.count
-                
-            // 指
-            case 2:
-                tmpCount = fingerNames.count
-                
-            default:
-                break
-            }
+            tmpCount = stringNames.count
             
         default:
             break
@@ -152,24 +210,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             tmpStr = toneNames[row]
             
         case KB.PICKERVIEW_STRINGFRETFINGER_TAG:
-            
-            switch(component) {
-                
-            // 弦
-            case 0:
-                tmpStr = stringNames[row]
-                
-            // フレット
-            case 1:
-                tmpStr = fretNames[row]
-                
-            // 指
-            case 2:
-                tmpStr = fingerNames[row]
-                
-            default:
-                break
-            }
+            tmpStr = stringNames[row] + "." + fretNames[row] + "." + fingerNames[row]
             
         default:
             break
@@ -200,6 +241,15 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
 
         // 必要があれば、PickerViewの選択IDを同期する
         syncPickerView()
+        
+        // ボタンを再描画する
+        syncButtonView()
+        
+        // フレットイメージを描画する
+        initFretView()
+        
+        // 背景色を描画する
+        initBgImageViews()
         
         // （直接同期する場合）反対側のPickerViewの同期を取る
 //        switch (pickerView.tag) {
@@ -239,7 +289,16 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // 結果PickerView側を非表示にする
             stringFretFingerPickerView.isHidden = true
-            print("is hidden 1")
+            
+            // ラベルを非表示にする
+            stringLabel.isHidden = true
+            fretLabel.isHidden = true
+            fingerLabel.isHidden = true
+            
+            // 説明ラベルを表示にする
+            howtoLabel.isHidden = false
+            howtoLabelImageView.isHidden = false
+            
             
         // 結果画面と音階値入力画面が同期されている場合
         case KB.SCREEN_STATE_ID_TONES_RESULTS_SYNCHRONIZED:
@@ -271,6 +330,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             initStringText()
             initFretText()
             initFingerText()
+            stringFretFingerPickerView.reloadAllComponents()
             
             if(stringIds.count > 0 && fretIds.count > 0 && fingerIds.count > 0){
                 
@@ -279,8 +339,17 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // 結果PickerView側を表示にする
             stringFretFingerPickerView.isHidden = false
-                        print("is not hidden 2")
             
+            // ラベルを表示にする
+            stringLabel.isHidden = false
+            fretLabel.isHidden = false
+            fingerLabel.isHidden = false
+            
+            // 説明ラベルを非表示にする
+            howtoLabel.isHidden = true
+            howtoLabelImageView.isHidden = true
+            
+           
         // 結果画面と音階値入力画面が同期されていない場合
         case KB.SCREEN_STATE_ID_TONES_RESULTS_ASYNCHRONIZED:
             
@@ -314,11 +383,20 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // 結果PickerView側を表示にする
             stringFretFingerPickerView.isHidden = false
-                                    print("is not hidden 3")
+            
+            // ラベルを表示にする
+            stringLabel.isHidden = false
+            fretLabel.isHidden = false
+            fingerLabel.isHidden = false
+            
+            // 説明ラベルを非表示にする
+            howtoLabel.isHidden = true
+            howtoLabelImageView.isHidden = true
             
         default:
             break
         }
+        
     }
     
     
@@ -342,7 +420,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
         for i in 0 ..< stringIds.count {
             
-            stringNames.append(KB.MUSIC_GUITAR_STRINGS_NAMES[i])
+            stringNames.append(KB.MUSIC_GUITAR_STRINGS_NAMES[stringIds[i]])
         }
     }
     
@@ -356,7 +434,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             // 解放弦の場合
             if(fretIds[i] <= 0) {
                 
-                fretNames.append("解放")
+                fretNames.append("-")
             }
             else {
                 
@@ -380,10 +458,11 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             // それ以外の場合
             else {
                 
-                fingerNames.append(String(fingerIds[i]))
+                fingerNames.append(KB.MUSIC_GUITAR_FINGERS_ID_NAMES[fingerIds[i]])
             }
         }
     }
+    
     
     /*------- 各種ボタンに関する処理　-------*/
     
@@ -395,6 +474,14 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
 
         // 音選択ダイアログを取得する
         let alert = UIAlertController(title: "音の選択", message: "", preferredStyle: .alert)
+        
+        // キャンセルボタンを冒頭に追加する
+        let tmpCancelAction = UIAlertAction(title: " - ", style: .default, handler: { (action) in
+            
+            // ダイアログを閉じる
+            alert.dismiss(animated: true, completion: nil)
+        })
+        alert.addAction(tmpCancelAction)
         
         // ボタンを設置する
         for i in minMaxToneIds[0] ..< minMaxToneIds[1] + 1 {
@@ -428,6 +515,15 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
                 // PickerViewの同期を取る
                 self.syncPickerView()
                 
+                // ボタンを再描画する
+                self.syncButtonView()
+                
+                // フレットイメージを描画する
+                self.initFretView()
+                
+                // 背景色を描画する
+                self.initBgImageViews()
+                
                 // ダイアログを閉じる
                 alert.dismiss(animated: true, completion: nil)
             })
@@ -449,6 +545,15 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // PickerViewの同期を取る
             syncPickerView()
+            
+            // ボタンを再描画する
+            syncButtonView()
+            
+            // フレットイメージを描画する
+            initFretView()
+            
+            // 背景色を描画する
+            initBgImageViews()
         }
         // それ以外の場合、アラートを表示する
         else {
@@ -480,6 +585,15 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // PickerViewの同期を取る
             syncPickerView()
+            
+            // ボタンを再描画する
+            syncButtonView()
+            
+            // フレットイメージを描画する
+            initFretView()
+            
+            // 背景色を描画する
+            initBgImageViews()
         }
         // 配列の範囲外の場合、音を追加する
         else {
@@ -489,6 +603,14 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // 音選択ダイアログを取得する
             let alert = UIAlertController(title: "音の追加", message: "", preferredStyle: .alert)
+            
+            // キャンセルボタンを冒頭に追加する
+            let tmpCancelAction = UIAlertAction(title: " - ", style: .default, handler: { (action) in
+                
+                // ダイアログを閉じる
+                alert.dismiss(animated: true, completion: nil)
+            })
+            alert.addAction(tmpCancelAction)
             
             // ボタンを設置する
             for i in minMaxToneIds[0] ..< minMaxToneIds[1] + 1 {
@@ -510,6 +632,15 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
                     
                     // PickerViewの同期を取る
                     self.syncPickerView()
+                    
+                    // ボタンを再描画する
+                    self.syncButtonView()
+                    
+                    // フレットイメージを描画する
+                    self.initFretView()
+                    
+                    // 背景色を描画する
+                    self.initBgImageViews()
                     
                     // ダイアログを閉じる
                     alert.dismiss(animated: true, completion: nil)
@@ -538,10 +669,22 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             }
             
             // PickerViewの同期を取る
-            tonesSelectedId = tonesSelectedId - 1
+            if(tonesSelectedId >= toneIds.count){
+                
+                tonesSelectedId = tonesSelectedId - 1
+            }
             lastChangedSelectedId = KB.PICKERVIEW_TONE_TAG
             
             syncPickerView()
+            
+            // ボタンを再描画する
+            syncButtonView()
+            
+            // フレットイメージを描画する
+            initFretView()
+            
+            // 背景色を描画する
+            initBgImageViews()
         }
         // それ以外の場合、アラートを表示する
         else {
@@ -590,7 +733,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
         // 検索結果を取得する
         var tmpStringFretFingerIds : [[Int]] = []
-        tmpStringFretFingerIds = KB.getOptimiseStringIdFretIdFingerIds(tones: toneIds, numSearch: 100)
+        tmpStringFretFingerIds = KB.getOptimiseStringIdFretIdFingerIds(tones: toneIds, numSearch: 100000)
 
         // 検索所要時間を算出する
         let procTime = Date().timeIntervalSince1970 - startTime
@@ -612,7 +755,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         }
         
         // ダイアログを表示する
-        let alert = UIAlertController(title: "検索成功", message: "検索が完了しました！ /n検索回数：" + String(100) + ", 計算時間：" + procTimeStr, preferredStyle: .alert)
+        let alert = UIAlertController(title: "検索成功", message: "検索が完了しました！ \n検索回数：" + String(100000) + "\n計算時間：" + procTimeStr, preferredStyle: .alert)
         let tmpAction = UIAlertAction(title: "OK", style: .default, handler: { (action) in
             
             // ダイアログを閉じる
@@ -626,6 +769,269 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
         // PickerViewの同期を取る
         syncPickerView()
+        
+        // ボタンを再描画する
+        syncButtonView()
+        
+        // フレットイメージを描画する
+        initFretView()
+        
+        // 背景色を描画する
+        initBgImageViews()
     }
     
+    // 入力状態によってボタン描画を反映する
+    func syncButtonView (){
+        
+        var tmpPrevFlag : Bool = false
+        var tmpNextFlag : Bool = false
+        var tmpEditFlag : Bool = false
+        var tmpDeleteFlag : Bool = false
+        var tmpSearchFlag : Bool = false
+
+        // ボタンが有効か無効かを判定する
+        
+        // 入力された音階値が0個の場合
+        if(toneIds.count == 0){
+
+            tmpEditFlag = true
+            tmpNextFlag = true
+        }
+        // 入力された音階値が1個の場合
+        else if(toneIds.count == 1){
+            
+            tmpEditFlag = true
+            tmpNextFlag = true
+            tmpDeleteFlag = true
+        }
+        // 入力された音階値が2個以上の場合
+        else {
+            
+            // 一番最初に入力された音階値であった場合
+            if(tonesSelectedId == 0) {
+                
+                tmpNextFlag = true
+            }
+            // 一番最後に入力された音階値であった場合
+            else if(tonesSelectedId >= toneIds.count - 1) {
+                
+                tmpPrevFlag = true
+                tmpNextFlag = true
+            }
+            // それ以外の場合
+            else {
+                
+                tmpPrevFlag = true
+                tmpNextFlag = true
+            }
+            
+            tmpEditFlag = true
+            tmpDeleteFlag = true
+            tmpSearchFlag = true
+        }
+        
+        // ボタンの有効・無効有無を設定する
+        initButtonState(button: prevButton, isEnabled: tmpPrevFlag)
+        initButtonState(button: nextButton, isEnabled: tmpNextFlag)
+        initButtonState(button: editButton, isEnabled: tmpEditFlag)
+        initButtonState(button: deleteButton, isEnabled: tmpDeleteFlag)
+        initButtonState(button: searchButton, isEnabled: tmpSearchFlag)
+    }
+    
+    // ボタンの有効有無を設定する
+    // @param button ボタン
+    // @param isEnabled 有効かの是非
+    func initButtonState (button : UIButton, isEnabled : Bool) {
+        
+        if(isEnabled){
+
+            button.setBackgroundImage(UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_ORANGE), for: .normal)
+            
+            button.layer.borderWidth = 1
+            button.layer.borderColor = UIColor.darkGray.cgColor
+            button.setTitleColor(UIColor.black, for: .normal)
+        }
+        else{
+
+            button.setBackgroundImage(UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            
+            button.layer.borderWidth = 1
+            button.layer.borderColor = UIColor.white.cgColor
+            button.setTitleColor(UIColor.white, for: .normal)
+        }
+        button.layer.cornerRadius = 10
+        button.layer.masksToBounds = true
+    }
+    
+    /*------- フレットビューに関する処理　-------*/
+
+    // フレットのイメージをセットする
+    func initFretView () {
+        
+        // 表示対象のフレットがない場合は、非表示にする
+        if(screenStateId == KB.SCREEN_STATE_ID_ONLY_TONES_VISIBLE || stringIds.count == 0
+            || resultsSelectedId < 0 || stringIds.count <= resultsSelectedId){
+            
+            stringId0Label.isHidden = true
+            stringId1Label.isHidden = true
+            stringId2Label.isHidden = true
+            stringId3Label.isHidden = true
+            stringId4Label.isHidden = true
+            stringId5Label.isHidden = true
+            openStringId0Label.isHidden = true
+            openStringId1Label.isHidden = true
+            openStringId2Label.isHidden = true
+            openStringId3Label.isHidden = true
+            openStringId4Label.isHidden = true
+            openStringId5Label.isHidden = true
+            fretId0Label.isHidden = true
+            fretId1Label.isHidden = true
+            fretId2Label.isHidden = true
+            fret00ImageView.isHidden = true
+            fret01ImageView.isHidden = true
+            fret02ImageView.isHidden = true
+            fret10ImageView.isHidden = true
+            fret11ImageView.isHidden = true
+            fret12ImageView.isHidden = true
+            fret20ImageView.isHidden = true
+            fret21ImageView.isHidden = true
+            fret22ImageView.isHidden = true
+            fret30ImageView.isHidden = true
+            fret31ImageView.isHidden = true
+            fret32ImageView.isHidden = true
+            fret40ImageView.isHidden = true
+            fret41ImageView.isHidden = true
+            fret42ImageView.isHidden = true
+            fret50ImageView.isHidden = true
+            fret51ImageView.isHidden = true
+            fret52ImageView.isHidden = true
+            fretFretLabel.isHidden = true
+            fretStringLabel.isHidden = true
+            
+            return
+        }
+        
+        // フレットビューを表示状態にする
+        stringId0Label.isHidden = false
+        stringId1Label.isHidden = false
+        stringId2Label.isHidden = false
+        stringId3Label.isHidden = false
+        stringId4Label.isHidden = false
+        stringId5Label.isHidden = false
+        openStringId0Label.isHidden = false
+        openStringId1Label.isHidden = false
+        openStringId2Label.isHidden = false
+        openStringId3Label.isHidden = false
+        openStringId4Label.isHidden = false
+        openStringId5Label.isHidden = false
+        fretId0Label.isHidden = false
+        fretId1Label.isHidden = false
+        fretId2Label.isHidden = false
+        fret00ImageView.isHidden = false
+        fret01ImageView.isHidden = false
+        fret02ImageView.isHidden = false
+        fret10ImageView.isHidden = false
+        fret11ImageView.isHidden = false
+        fret12ImageView.isHidden = false
+        fret20ImageView.isHidden = false
+        fret21ImageView.isHidden = false
+        fret22ImageView.isHidden = false
+        fret30ImageView.isHidden = false
+        fret31ImageView.isHidden = false
+        fret32ImageView.isHidden = false
+        fret40ImageView.isHidden = false
+        fret41ImageView.isHidden = false
+        fret42ImageView.isHidden = false
+        fret50ImageView.isHidden = false
+        fret51ImageView.isHidden = false
+        fret52ImageView.isHidden = false
+        fretFretLabel.isHidden = false
+        fretStringLabel.isHidden = false
+        
+        // 表示対象の弦ID、フレットIDを取得する
+        let currentStringId = stringIds[resultsSelectedId]
+        let currentFretId = fretIds[resultsSelectedId]
+        
+        // フレット番号のラベルをセットする
+        var midFretId : Int = currentFretId
+        if(midFretId <= 1){
+            
+            midFretId = 2
+        }
+        else if(midFretId == KB.MUSIC_GUITAR_STRINGS_DEFAULT_NUM_FRETS[currentStringId]) {
+            
+            midFretId -= 1
+        }
+        fretId0Label.text = String(midFretId - 1)
+        fretId1Label.text = String(midFretId)
+        fretId2Label.text = String(midFretId + 1)
+        
+        // 使用の有無によって、弦番号のラベルに色付けする
+        stringId0Label.textColor = (currentStringId == 0) ? UIColor.red : UIColor.black
+        stringId1Label.textColor = (currentStringId == 1) ? UIColor.red : UIColor.black
+        stringId2Label.textColor = (currentStringId == 2) ? UIColor.red : UIColor.black
+        stringId3Label.textColor = (currentStringId == 3) ? UIColor.red : UIColor.black
+        stringId4Label.textColor = (currentStringId == 4) ? UIColor.red : UIColor.black
+        stringId5Label.textColor = (currentStringId == 5) ? UIColor.red : UIColor.black
+        openStringId0Label.textColor = (currentStringId == 0) ? UIColor.red : UIColor.black
+        openStringId1Label.textColor = (currentStringId == 1) ? UIColor.red : UIColor.black
+        openStringId2Label.textColor = (currentStringId == 2) ? UIColor.red : UIColor.black
+        openStringId3Label.textColor = (currentStringId == 3) ? UIColor.red : UIColor.black
+        openStringId4Label.textColor = (currentStringId == 4) ? UIColor.red : UIColor.black
+        openStringId5Label.textColor = (currentStringId == 5) ? UIColor.red : UIColor.black
+        
+        // 解放の有無によって、解放ラベルの内容をセットする
+        openStringId0Label.text = (currentStringId == 0 && currentFretId == 0) ? "開放" : ""
+        openStringId1Label.text = (currentStringId == 1 && currentFretId == 0) ? "開放" : ""
+        openStringId2Label.text = (currentStringId == 2 && currentFretId == 0) ? "開放" : ""
+        openStringId3Label.text = (currentStringId == 3 && currentFretId == 0) ? "開放" : ""
+        openStringId4Label.text = (currentStringId == 4 && currentFretId == 0) ? "開放" : ""
+        openStringId5Label.text = (currentStringId == 5 && currentFretId == 0) ? "開放" : ""
+        
+        // 各フレットに画像をセットする
+        fret00ImageView.image = (currentStringId == 0 && currentFretId - (midFretId - 2) == 1) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret01ImageView.image = (currentStringId == 0 && currentFretId - (midFretId - 2) == 2) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret02ImageView.image = (currentStringId == 0 && currentFretId - (midFretId - 2) == 3) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret10ImageView.image = (currentStringId == 1 && currentFretId - (midFretId - 2) == 1) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret11ImageView.image = (currentStringId == 1 && currentFretId - (midFretId - 2) == 2) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret12ImageView.image = (currentStringId == 1 && currentFretId - (midFretId - 2) == 3) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret20ImageView.image = (currentStringId == 2 && currentFretId - (midFretId - 2) == 1) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret21ImageView.image = (currentStringId == 2 && currentFretId - (midFretId - 2) == 2) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret22ImageView.image = (currentStringId == 2 && currentFretId - (midFretId - 2) == 3) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret30ImageView.image = (currentStringId == 3 && currentFretId - (midFretId - 2) == 1) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret31ImageView.image = (currentStringId == 3 && currentFretId - (midFretId - 2) == 2) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret32ImageView.image = (currentStringId == 3 && currentFretId - (midFretId - 2) == 3) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret40ImageView.image = (currentStringId == 4 && currentFretId - (midFretId - 2) == 1) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret41ImageView.image = (currentStringId == 4 && currentFretId - (midFretId - 2) == 2) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret42ImageView.image = (currentStringId == 4 && currentFretId - (midFretId - 2) == 3) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret50ImageView.image = (currentStringId == 5 && currentFretId - (midFretId - 2) == 1) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret51ImageView.image = (currentStringId == 5 && currentFretId - (midFretId - 2) == 2) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+        fret52ImageView.image = (currentStringId == 5 && currentFretId - (midFretId - 2) == 3) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
+    }
+    
+    /*------- バックグラウンドに関する処理　-------*/
+    
+    // バックグランド背景色を調整する
+    func initBgImageViews () {
+        
+        switch(lastChangedSelectedId) {
+            
+        // 最後に音階値を入力した場合
+        case KB.PICKERVIEW_TONE_TAG:
+            tonesBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
+            tonesTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
+            resultBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
+            resultTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
+            
+        // 最後に結果画面を操作した場合
+        case KB.PICKERVIEW_STRINGFRETFINGER_TAG:
+            tonesBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
+            tonesTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
+            resultBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
+            resultTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
+
+        default:
+            break
+        }
+    }
 }

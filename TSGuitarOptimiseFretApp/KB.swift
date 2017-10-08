@@ -11,7 +11,7 @@ import Foundation
 // 共通変数・メソッド（Knowledge Base）を用意するクラス
 class KB {
 
-    /*------- 画面について -------*/
+    /*------- 画面関連 -------*/
 
     static let SCREEN_STATE_ID_ONLY_TONES_VISIBLE = 0
     static let SCREEN_STATE_ID_TONES_RESULTS_SYNCHRONIZED = 1
@@ -19,6 +19,13 @@ class KB {
     
     static let PICKERVIEW_TONE_TAG = 0
     static let PICKERVIEW_STRINGFRETFINGER_TAG = 1
+    
+    static let IMAGE_NAME_FELT_BACKGROUND_ORIGINAL = "felt_background_original.jpg"
+    static let IMAGE_NAME_FELT_BACKGROUND_YELLOW = "felt_background_yellow.jpg"
+    static let IMAGE_NAME_FELT_BACKGROUND_ORANGE = "felt_background_orange.jpg"
+    static let IMAGE_NAME_FELT_BACKGROUND_GREEN = "felt_background_green.jpg"
+    static let IMAGE_NAME_FELT_BACKGROUND_DARKBLUE = "felt_background_darkblue.jpg"
+    static let IMAGE_NAME_FELT_BACKGROUND_BLUE = "felt_background_blue.jpg"
 
     
     /*------- 音符種別 -------*/
@@ -340,7 +347,7 @@ class KB {
     static let MUSIC_GUITAR_FINGERS_ID_NAMES = [
         "",
         "親",
-        "人差",
+        "人",
         "中",
         "薬",
         "小"
@@ -364,7 +371,7 @@ class KB {
     // @return コスト
     static func calcGuitarSingleFingerPositionCost (stringId : Int, fretId : Int, fingerId : Int) -> Int {
         
-        return (6 - stringId) * fretId + fingerId
+        return (2 - (stringId / 3)) * (fretId / 3) + fingerId / 2
     }
     
     // 2つのギター単指間の運動コストを算出する
@@ -394,26 +401,69 @@ class KB {
         
         // ルール3：前後の指が異なる場合、動的にコストを計算する
         var tmpBaseFretId = 0
+        var tmpDiffFingerCost = 0
         if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER){
             
             tmpBaseFretId = beforeFretId + 1
-            tmpCost += abs(afterFretId - tmpBaseFretId) + 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
         }
         else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER){
             
             tmpBaseFretId = beforeFretId + 2
-            tmpCost += abs(afterFretId - tmpBaseFretId) + 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
         }
         else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS){
             
             tmpBaseFretId = beforeFretId + 3
-            tmpCost += abs(afterFretId - tmpBaseFretId) + 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
         }
         else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER){
             
             tmpBaseFretId = beforeFretId + 1
-            tmpCost += abs(afterFretId - tmpBaseFretId) + 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
         }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS){
+            
+            tmpBaseFretId = beforeFretId + 2
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS){
+            
+            tmpBaseFretId = beforeFretId + 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER){
+            
+            tmpBaseFretId = beforeFretId - 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER){
+            
+            tmpBaseFretId = beforeFretId - 2
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS && afterFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER){
+            
+            tmpBaseFretId = beforeFretId - 3
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER){
+            
+            tmpBaseFretId = beforeFretId - 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS && afterFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER){
+            
+            tmpBaseFretId = beforeFretId - 2
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS && afterFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER){
+            
+            tmpBaseFretId = beforeFretId - 1
+            tmpDiffFingerCost += abs(afterFretId - tmpBaseFretId) + 1
+        }
+        tmpCost += tmpDiffFingerCost * tmpDiffFingerCost
+        
         
         // ルール4：前後の指が同じ場合、動的にコストを決定する
         if(beforeFingerId == afterFingerId && beforeFingerId != MUSIC_GUITAR_FINGERS_ID_NONE){
@@ -424,10 +474,10 @@ class KB {
             // (1)前後で弾く弦が同じとき
             if(subStringId == 0){
                 
-                // (1-1)隣接したフレットでの移動の場合、コストを2とする
+                // (1-1)隣接したフレットでの移動の場合、コストを4とする
                 if(beforeFretId > 0 && afterFretId > 0 && subFretId == 1){
                     
-                    tmpCost = 2
+                    tmpCost = 4
                 }
                 // (1-2)隣接していないフレットでの移動の場合、コストを動的に追加する
                 else if(beforeFretId > 0 && afterFretId > 0 && subFretId != 1){
@@ -438,8 +488,44 @@ class KB {
             // (2)前後で弾く弦が異なる場合
             else{
                 
-                tmpCost += subStringId * subStringId + subFretId * subFretId
+                tmpCost += (subStringId + 1) * (subStringId + 1) * (subStringId + 1) + (subFretId + 1) * (subFretId + 1) * (subFretId + 1)
             }
+        }
+        
+        return tmpCost
+    }
+    
+    // 3つのギター単指間の運動コストを算出する
+    // @param beforeStringId 移動前の弦ID
+    // @param beforeFretId 移動前のフレットID
+    // @param beforeFingerId 移動前の指ID
+    // @param middleStringId 移動中の弦ID
+    // @param middleFretId 移動中のフレットID
+    // @param middleFingerId 移動中の指ID
+    // @param afterStringId 移動後の弦ID
+    // @param afterFretId 移動後のフレットID
+    // @param afterFingerId 移動後の指ID
+    // @return コスト
+    static func calcGuitarSingleFingersThreeMovingCost (beforeStringId : Int, beforeFretId : Int, beforeFingerId : Int, middleStringId : Int, middleFretId : Int, middleFingerId : Int, afterStringId : Int, afterFretId : Int, afterFingerId : Int) -> Int {
+        
+        var tmpCost : Int = 0
+        
+        // ルール1：全てで同じ指だった場合、コストを10とする
+        if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER && middleFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_MOTHER){
+            
+            tmpCost += 10
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER && middleFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_BROTHER){
+            
+            tmpCost += 10
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER && middleFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER && afterFingerId == MUSIC_GUITAR_FINGERS_ID_SISTER){
+            
+            tmpCost += 10
+        }
+        else if(beforeFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS && middleFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS && afterFingerId == MUSIC_GUITAR_FINGERS_ID_KIDS){
+            
+            tmpCost += 10
         }
         
         return tmpCost
@@ -466,11 +552,19 @@ class KB {
             tmpCost += calcGuitarSingleFingerPositionCost(stringId: currentIds[0], fretId: currentIds[1], fingerId: currentIds[2])
             
             // 運動コストを加算する
+            // （運動コストは位置コストの4倍比率で加算）
             if(i > 0) {
                 
                 let beforeIds = stringIdFretIdFingerIds[i - 1]
                 
-                tmpCost += calcGuitarSingleFingersMovingCost(beforeStringId: beforeIds[0], beforeFretId: beforeIds[1], beforeFingerId: beforeIds[2], afterStringId: currentIds[0], afterFretId: currentIds[1], afterFingerId: currentIds[2])
+                tmpCost += calcGuitarSingleFingersMovingCost(beforeStringId: beforeIds[0], beforeFretId: beforeIds[1], beforeFingerId: beforeIds[2], afterStringId: currentIds[0], afterFretId: currentIds[1], afterFingerId: currentIds[2]) * 4                
+            }
+            if(i > 1) {
+                
+                let before1Ids = stringIdFretIdFingerIds[i - 1]
+                let before2Ids = stringIdFretIdFingerIds[i - 2]
+                
+                tmpCost += calcGuitarSingleFingersThreeMovingCost(beforeStringId: before2Ids[0], beforeFretId: before2Ids[1], beforeFingerId: before2Ids[2], middleStringId: before1Ids[0], middleFretId: before1Ids[1], middleFingerId: before1Ids[2], afterStringId: currentIds[0], afterFretId: currentIds[1], afterFingerId: currentIds[2]) * 4
             }
         }
         return tmpCost
@@ -570,8 +664,9 @@ class KB {
             var tmpRandomStringIdAllTones : [Int] = []
             
             for i in 0 ..< tmpUsableStringIdsAllTones.count {
-                
-                tmpRandomStringIdAllTones.append(Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count))))
+
+                tmpRandomStringIdAllTones.append(tmpUsableStringIdsAllTones[i][Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count)))])
+//                tmpRandomStringIdAllTones.append(Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count))))
 //                let tmpRandomIdInStringIds = Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count)))
 //                tmpRandomStringIdAllTones.append(tmpUsableStringIdsAllTones[i][tmpRandomIdInStringIds])
             
@@ -591,8 +686,9 @@ class KB {
                     MUSIC_GUITAR_FINGERS_ID_MOTHER,
                     MUSIC_GUITAR_FINGERS_ID_BROTHER,
                     MUSIC_GUITAR_FINGERS_ID_SISTER,
+                    MUSIC_GUITAR_FINGERS_ID_KIDS
                 ]
-                var tmpRamdomFingerIdInSingleTone = tmpFingerIds[Int(arc4random_uniform(3))]
+                var tmpRamdomFingerIdInSingleTone = tmpFingerIds[Int(arc4random_uniform(4))]
                 if(tmpRandomFretIdInSingleTone <= 0) {
                     
                     tmpRamdomFingerIdInSingleTone = 0
