@@ -10,6 +10,16 @@ import Foundation
 
 // 共通変数・メソッド（Knowledge Base）を用意するクラス
 class KB {
+
+    /*------- 画面について -------*/
+
+    static let SCREEN_STATE_ID_ONLY_TONES_VISIBLE = 0
+    static let SCREEN_STATE_ID_TONES_RESULTS_SYNCHRONIZED = 1
+    static let SCREEN_STATE_ID_TONES_RESULTS_ASYNCHRONIZED = 2
+    
+    static let PICKERVIEW_TONE_TAG = 0
+    static let PICKERVIEW_STRINGFRETFINGER_TAG = 1
+
     
     /*------- 音符種別 -------*/
     
@@ -500,7 +510,7 @@ class KB {
             var tmpUsableStringIdsInSingleTone : [Int] = []
             for j in 0 ..< MUSIC_GUITAR_STRINGS_NAMES.count {
                 
-                if(tmpFretIdsAllTones[i][j] < 0) {
+                if(tmpFretIdsAllTones[i][j] >= 0) {
                     
                     tmpUsableStringIdsInSingleTone.append(j)
                 }
@@ -562,6 +572,9 @@ class KB {
             for i in 0 ..< tmpUsableStringIdsAllTones.count {
                 
                 tmpRandomStringIdAllTones.append(Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count))))
+//                let tmpRandomIdInStringIds = Int(arc4random_uniform(UInt32(tmpUsableStringIdsAllTones[i].count)))
+//                tmpRandomStringIdAllTones.append(tmpUsableStringIdsAllTones[i][tmpRandomIdInStringIds])
+            
             }
             
             // 上記の音階値を利用する場合のフレットID、弦IDをそれぞれ求める
@@ -570,32 +583,33 @@ class KB {
             for i in 0 ..< tmpRandomStringIdAllTones.count {
                 
                 // フレットIDを求める
-                var tmpRandomFretIdInSingleTone = tmpFretIdsAllTones[tmpRandomStringIdAllTones[i]]
+                let tmpRandomStringIdInSingleTone : Int = tmpRandomStringIdAllTones[i]
+                let tmpRandomFretIdInSingleTone : Int = tmpFretIdsAllTones[i][tmpRandomStringIdInSingleTone]
                 
                 // 指IDを適当に決める
                 var tmpFingerIds : [Int] = [
                     MUSIC_GUITAR_FINGERS_ID_MOTHER,
                     MUSIC_GUITAR_FINGERS_ID_BROTHER,
                     MUSIC_GUITAR_FINGERS_ID_SISTER,
-                    MUSIC_GUITAR_FINGERS_ID_KIDS
                 ]
-                var tmpRamdomFingerIdInSingleTone = tmpFingerIds[Int(arc4random_uniform(4))]
-                if(tmpRandomFretIdInSingleTone[i] < 0) {
+                var tmpRamdomFingerIdInSingleTone = tmpFingerIds[Int(arc4random_uniform(3))]
+                if(tmpRandomFretIdInSingleTone <= 0) {
                     
                     tmpRamdomFingerIdInSingleTone = 0
                 }
                 
                 // 弦ID、フレットID、指IDをセットで配列に格納する
-                tmpRandomStringIdFretIdFingerIdsAllTones.append([tmpRandomStringIdAllTones[i], tmpRamdomFingerIdInSingleTone, tmpRamdomFingerIdInSingleTone])
+                tmpRandomStringIdFretIdFingerIdsAllTones.append([tmpRandomStringIdAllTones[i], tmpRandomFretIdInSingleTone, tmpRamdomFingerIdInSingleTone])
             }
             
             // この時のコストを求める
-            var tmpRandomCost = calcGuitarSingleFingersTotalCost(stringIdFretIdFingerIds: tmpRandomStringIdFretIdFingerIdsAllTones)
+            let tmpRandomCost = calcGuitarSingleFingersTotalCost(stringIdFretIdFingerIds: tmpRandomStringIdFretIdFingerIdsAllTones)
             
             // コストが最小の場合には、候補とする
             if(tmpMinCost < 0 || tmpMinCost > tmpRandomCost){
                 
                 // 運指を一時保管リストとして保管する
+                tmpMinStringIdFretIdFingerIdsAllTones.removeAll()
                 for i in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones.count {
 
                     var tmpStringIdFretIdFingerIds : [Int] = []
@@ -615,7 +629,7 @@ class KB {
             tmpNumSearch = tmpNumSearch + 1
         }
         
-        
+        print(tmpMinStringIdFretIdFingerIdsAllTones)
         return tmpMinStringIdFretIdFingerIdsAllTones
     }
     
