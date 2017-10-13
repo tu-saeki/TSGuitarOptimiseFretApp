@@ -570,12 +570,13 @@ class KB {
         return tmpCost
     }
     
-    // 音階値から、運指コストが最小となる運指を取得する
+    // 音階値から、運指コストが最小となる運指を複数パターン取得する
     // （単音弾きに対応）
     // @param tones [音階値]
     // @param numSearch 計算回数
-    // @return [[弦ID, フレットID, 指ID] ... ]
-    static func getOptimiseStringIdFretIdFingerIds(tones : [Int], numSearch : Int) -> [[Int]] {
+    // @param numPattern 最大パターン数
+    // @return [[(1番コストが少ないパターン)[弦ID, フレットID, 指ID], ... ], [(2番目にコストが少ないパターン)[弦ID, フレットID, 指ID], ... ], ... ]
+    static func getOptimiseStringIdFretIdFingerIds(tones : [Int], numSearch : Int, numPattern : Int) -> [[[Int]]] {
 
         //-------------------------------------------------
         // 各音階値が取りうるフレット一覧を求める
@@ -648,8 +649,8 @@ class KB {
         
         var tmpNumSearch : Int = 0
         
-        var tmpMinCost : Int = -1
-        var tmpMinStringIdFretIdFingerIdsAllTones : [[Int]] = []
+        var tmpMinCosts : [Int] = []
+        var tmpMinStringIdFretIdFingerIdsAllTones : [[[Int]]] = []
         
         // 暫定：規定計算回数分だけ繰り返す
         while(true){
@@ -701,32 +702,217 @@ class KB {
             // この時のコストを求める
             let tmpRandomCost = calcGuitarSingleFingersTotalCost(stringIdFretIdFingerIds: tmpRandomStringIdFretIdFingerIdsAllTones)
             
-            // コストが最小の場合には、候補とする
-            if(tmpMinCost < 0 || tmpMinCost > tmpRandomCost){
+            // 試行回数が不十分の場合
+            if(tmpMinCosts.count < numPattern){
                 
-                // 運指を一時保管リストとして保管する
-                tmpMinStringIdFretIdFingerIdsAllTones.removeAll()
-                for i in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones.count {
-
-                    var tmpStringIdFretIdFingerIds : [Int] = []
+                // 既に同じ組み合わせが含まれているかチェックする
+                var tmpSameId : Int = -1
+                for i in 0 ..< tmpMinStringIdFretIdFingerIdsAllTones.count {
                     
-                    for j in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones[i].count {
-                    
-                        tmpStringIdFretIdFingerIds.append(tmpRandomStringIdFretIdFingerIdsAllTones[i][j])
+                    var tmpSingleSameFlag : Bool = true
+                    for j in 0 ..< tmpMinStringIdFretIdFingerIdsAllTones[i].count {
+                        
+                        if(tmpMinStringIdFretIdFingerIdsAllTones[i][j][0] != tmpRandomStringIdFretIdFingerIdsAllTones[j][0] || tmpMinStringIdFretIdFingerIdsAllTones[i][j][1] != tmpRandomStringIdFretIdFingerIdsAllTones[j][1]) {
+                            
+                            tmpSingleSameFlag = false
+                            break
+                        }
                     }
-                    tmpMinStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIds)
+                    if(tmpSingleSameFlag) {
+                        
+                        tmpSameId = i
+                        break
+                    }
+                }
+                // 既に同じ組み合わせが含まれていた場合、既存の運指コストが上回っていたらこれを削除する
+                if(tmpSameId >= 0){
+                    
+                    if(tmpRandomCost < tmpMinCosts[tmpSameId]) {
+                        
+                        tmpMinCosts.remove(at: tmpSameId)
+                        tmpMinStringIdFretIdFingerIdsAllTones.remove(at: tmpSameId)
+                        
+                        tmpSameId = -1
+                    }
                 }
                 
-                // 最小コストを保管する
-                tmpMinCost = tmpRandomCost
+                // 同じ組み合わせが含まれない場合、候補とする
+                if(tmpSameId < 0) {
+
+                    // 運指を一時保管リストとして保管する
+                    var tmpStringIdFretIdFingerIdsAllTones : [[Int]] = []
+                    for i in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones.count {
+                        
+                        var tmpStringIdFretIdFingerIds : [Int] = []
+                        
+                        for j in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones[i].count {
+                            
+                            tmpStringIdFretIdFingerIds.append(tmpRandomStringIdFretIdFingerIdsAllTones[i][j])
+                        }
+                        tmpStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIds)
+                    }
+                    tmpMinStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIdsAllTones)
+                    
+                    // 最小コストを保管する
+                    tmpMinCosts.append(tmpRandomCost)
+                }
+            }
+            // それ以外の場合
+            else{
+                
+                // 既に同じ組み合わせが含まれているかチェックする
+                var tmpSameId : Int = -1
+                for i in 0 ..< tmpMinStringIdFretIdFingerIdsAllTones.count {
+                    
+                    var tmpSingleSameFlag : Bool = true
+                    for j in 0 ..< tmpMinStringIdFretIdFingerIdsAllTones[i].count {
+                        
+                        if(tmpMinStringIdFretIdFingerIdsAllTones[i][j][0] != tmpRandomStringIdFretIdFingerIdsAllTones[j][0] || tmpMinStringIdFretIdFingerIdsAllTones[i][j][1] != tmpRandomStringIdFretIdFingerIdsAllTones[j][1]) {
+                            
+                            tmpSingleSameFlag = false
+                            break
+                        }
+                    }
+                    if(tmpSingleSameFlag) {
+                        
+                        tmpSameId = i
+                        break
+                    }
+                }
+                // 既に同じ組み合わせが含まれていた場合、既存の運指コストが上回っていたらこれを削除する
+                if(tmpSameId >= 0){
+                    
+                    if(tmpRandomCost < tmpMinCosts[tmpSameId]) {
+                        
+                        tmpMinCosts.remove(at: tmpSameId)
+                        tmpMinStringIdFretIdFingerIdsAllTones.remove(at: tmpSameId)
+                        
+                        tmpSameId = -1
+                    }
+                }
+                
+                // 同じ組み合わせが含まれない場合
+                if(tmpSameId < 0) {
+
+                    // 候補数が不十分の場合、これを候補とする
+                    if(tmpMinStringIdFretIdFingerIdsAllTones.count < numPattern){
+                        
+                        // 運指を一時保管リストとして保管する
+                        var tmpStringIdFretIdFingerIdsAllTones : [[Int]] = []
+                        for i in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones.count {
+                            
+                            var tmpStringIdFretIdFingerIds : [Int] = []
+                            
+                            for j in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones[i].count {
+                                
+                                tmpStringIdFretIdFingerIds.append(tmpRandomStringIdFretIdFingerIdsAllTones[i][j])
+                            }
+                            tmpStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIds)
+                        }
+                        tmpMinStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIdsAllTones)
+                        
+                        // 最小コストを保管する
+                        tmpMinCosts.append(tmpRandomCost)
+                    }
+                    // それ以外の場合
+                    else {
+
+                        // コストが最小パターンに含まれるかチェックする
+                        var isMinCostsFlag : Bool = false
+                        for i in 0 ..< tmpMinCosts.count {
+                            
+                            if(tmpMinCosts[i] > tmpRandomCost){
+                                
+                                isMinCostsFlag = true
+                                break
+                            }
+                        }
+                        // 含まれる場合
+                        if(isMinCostsFlag) {
+                            
+                            // 最小パターンの中で、最もコストが大きいパターンを外す
+                            var tmpMaxCostId : Int = 0
+                            var tmpMaxCost : Int = 0
+                            for i in 0 ..< tmpMinCosts.count {
+                                
+                                if(tmpMinCosts[i] > tmpMaxCost){
+                                    
+                                    tmpMaxCostId = i
+                                    tmpMaxCost = tmpMinCosts[i]
+                                }
+                            }
+                            tmpMinStringIdFretIdFingerIdsAllTones.remove(at: tmpMaxCostId)
+                            tmpMinCosts.remove(at: tmpMaxCostId)
+                            
+                            // 運指を一時保管リストとして保管する
+                            var tmpStringIdFretIdFingerIdsAllTones : [[Int]] = []
+                            for i in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones.count {
+                                
+                                var tmpStringIdFretIdFingerIds : [Int] = []
+                                
+                                for j in 0 ..< tmpRandomStringIdFretIdFingerIdsAllTones[i].count {
+                                    
+                                    tmpStringIdFretIdFingerIds.append(tmpRandomStringIdFretIdFingerIdsAllTones[i][j])
+                                }
+                                tmpStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIds)
+                            }
+                            tmpMinStringIdFretIdFingerIdsAllTones.append(tmpStringIdFretIdFingerIdsAllTones)
+                            
+                            // 最小コストを保管する
+                            tmpMinCosts.append(tmpRandomCost)
+                        }
+
+                    }
+                    
+
+                }
             }
             
             // カウント用変数に追加する
             tmpNumSearch = tmpNumSearch + 1
         }
         
-        print(tmpMinStringIdFretIdFingerIdsAllTones)
-        return tmpMinStringIdFretIdFingerIdsAllTones
+        //        print(tmpMinStringIdFretIdFingerIdsAllTones)
+        //        return tmpMinStringIdFretIdFingerIdsAllTones
+
+        
+        // コストの低い順にソートして、出力用変数に渡す
+        var tmpResultStringIdFretIdFingerIdsAllTones : [[[Int]]] = []
+        while(tmpMinCosts.count > 0){
+            
+            // 最小コストの配列インデックスを取得する
+            var tmpMinId : Int = -1
+            var tmpMinCost : Int = -1
+            
+            for i in 0 ..< tmpMinCosts.count {
+                
+                if(tmpMinCosts[i] < tmpMinCost || tmpMinCost < 0) {
+                    
+                    tmpMinCost = tmpMinCosts[i]
+                    tmpMinId = i
+                }
+            }
+            
+            // 最小コストのものを出力用配列にコピーする
+            var tmpMinStringIdFretIdFingerIds : [[Int]] = []
+            for i in 0 ..< tmpMinStringIdFretIdFingerIdsAllTones[tmpMinId].count {
+                
+                var tmpMinStringIdFretIdFingerIdsSingle : [Int] = []
+                for j in 0 ..< tmpMinStringIdFretIdFingerIdsAllTones[tmpMinId][i].count {
+                
+                    tmpMinStringIdFretIdFingerIdsSingle.append(tmpMinStringIdFretIdFingerIdsAllTones[tmpMinId][i][j])
+                }
+                tmpMinStringIdFretIdFingerIds.append(tmpMinStringIdFretIdFingerIdsSingle)
+            }
+            tmpResultStringIdFretIdFingerIdsAllTones.append(tmpMinStringIdFretIdFingerIds)
+            
+            // 計算用配列からコピーした要素を外す
+            tmpMinStringIdFretIdFingerIdsAllTones.remove(at: tmpMinId)
+            tmpMinCosts.remove(at: tmpMinId)
+        }
+        
+        return tmpResultStringIdFretIdFingerIdsAllTones
+        
     }
     
     

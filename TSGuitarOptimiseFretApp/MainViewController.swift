@@ -21,8 +21,14 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     @IBOutlet var stringLabel : UILabel!
     @IBOutlet var fretLabel : UILabel!
     @IBOutlet var fingerLabel : UILabel!
+    @IBOutlet var toneLabel : UILabel!
     @IBOutlet var howtoLabel : UILabel!
     @IBOutlet var howtoLabelImageView : UIImageView!
+    @IBOutlet var resultPattern1Button : UIButton!
+    @IBOutlet var resultPattern2Button : UIButton!
+    @IBOutlet var resultPattern3Button : UIButton!
+    @IBOutlet var resultPattern4Button : UIButton!
+    @IBOutlet var resultPattern5Button : UIButton!
     
     // ボタン
     @IBOutlet var prevButton : UIButton!
@@ -73,21 +79,22 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     @IBOutlet var tonesTitleBgImageView : UIImageView!
     @IBOutlet var resultBgImageView : UIImageView!
     @IBOutlet var resultTitleBgImageView : UIImageView!
+    @IBOutlet var fretBgImageView : UIImageView!
 
     // 入力された音階
     var toneIds : [Int] = []
     var toneNames : [String] = []
     
     // 検索された弦
-    var stringIds : [Int] = []
+    var stringIds : [[Int]] = []
     var stringNames : [String] = []
     
     // フレット
-    var fretIds : [Int] = []
+    var fretIds : [[Int]] = []
     var fretNames : [String] = []
     
     // 指
-    var fingerIds : [Int] = []
+    var fingerIds : [[Int]] = []
     var fingerNames : [String] = []
     
     // 各種制御フラグ
@@ -95,6 +102,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     var tonesSelectedId : Int = 0
     var resultsSelectedId : Int = 0
     var lastChangedSelectedId : Int = KB.PICKERVIEW_TONE_TAG
+    var resultPatternSelectedId : Int = 0
     
     
     
@@ -104,6 +112,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         // ピッカービューを初期化する
         initPickerView()
 
+        // 名称ラベル領域を初期化する
+        initTitleLabelViews ()
+        
         // ピッカービューの同期を取る
         syncPickerView()
         
@@ -115,6 +126,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
         // 背景色を描画する
         initBgImageViews()
+        
+        // 運指画面を描画する
+        initResultPatterViews ()
         
 //        let tmpSystemCorrect : [[Int]] = [[5, 0, 0], [5, 7, 3], [5, 7, 3], [5, 2, 2], [5, 0, 0], [5, 0, 0]]
 //        let tmpUserCorrect : [[Int]] = [[5, 0, 0], [5, 7, 3], [5, 7, 3], [4, 7, 2], [5, 0, 0], [5, 0, 0]]
@@ -141,13 +155,13 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
         var y = tonePickerView.frame.origin.y
         tonePickerView.transform = CGAffineTransform(rotationAngle: rotationAngle)
-        tonePickerView.frame = CGRect(x: -100, y: y, width: view.frame.width + 200, height: 100)
+        tonePickerView.frame = CGRect(x: 0, y: y, width: view.frame.width + 100, height: 100)
         
         tonePickerView.tag = 0
         
         y = stringFretFingerPickerView.frame.origin.y
         stringFretFingerPickerView.transform = CGAffineTransform(rotationAngle: rotationAngle)
-        stringFretFingerPickerView.frame = CGRect(x: -100, y: y, width: view.frame.width + 200, height: 100)
+        stringFretFingerPickerView.frame = CGRect(x: 0, y: y, width: view.frame.width + 100, height: 100)
         
         stringFretFingerPickerView.tag = 1
         
@@ -250,6 +264,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
         // 背景色を描画する
         initBgImageViews()
+        
+        // 運指画面を描画する
+        initResultPatterViews ()
         
         // （直接同期する場合）反対側のPickerViewの同期を取る
 //        switch (pickerView.tag) {
@@ -371,8 +388,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
                 initStringText()
                 initFretText()
                 initFingerText()
+                stringFretFingerPickerView.reloadAllComponents()
                 
-                if(stringIds.count > 0 && fretIds.count > 0 && fingerIds.count > 0){
+                if(stringIds[resultPatternSelectedId].count > 0 && fretIds[resultPatternSelectedId].count > 0 && fingerIds[resultPatternSelectedId].count > 0){
                     
                     stringFretFingerPickerView.selectRow(resultsSelectedId, inComponent: 0, animated: true)
                 }
@@ -406,7 +424,6 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     func initToneText () {
         
         toneNames.removeAll()
-        
         for i in 0 ..< toneIds.count {
             
             toneNames.append(KB.getToneName(tone: toneIds[i], accidentalId: KB.getMusicNoteAccidentalId()))
@@ -416,29 +433,38 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     // 弦用のテキストを生成する
     func initStringText () {
         
-        stringNames.removeAll()
-        
-        for i in 0 ..< stringIds.count {
+        if(stringIds.count <= resultPatternSelectedId){
             
-            stringNames.append(KB.MUSIC_GUITAR_STRINGS_NAMES[stringIds[i]])
+            return
+        }
+        
+        stringNames.removeAll()
+        for i in 0 ..< stringIds[resultPatternSelectedId].count {
+            
+            stringNames.append(KB.MUSIC_GUITAR_STRINGS_NAMES[stringIds[resultPatternSelectedId][i]])
         }
     }
     
     // フレット用のテキストを生成する
     func initFretText () {
         
+        if(fretIds.count <= resultPatternSelectedId){
+            
+            return
+        }
+        
         fretNames.removeAll()
         
-        for i in 0 ..< fretIds.count {
+        for i in 0 ..< fretIds[resultPatternSelectedId].count {
 
             // 解放弦の場合
-            if(fretIds[i] <= 0) {
+            if(fretIds[resultPatternSelectedId][i] <= 0) {
                 
                 fretNames.append("-")
             }
             else {
                 
-                fretNames.append(String(fretIds[i]))
+                fretNames.append(String(fretIds[resultPatternSelectedId][i]))
             }
         }
     }
@@ -446,19 +472,24 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
     // 指用のテキストを生成する
     func initFingerText () {
         
+        if(fingerIds.count <= resultPatternSelectedId){
+            
+            return
+        }
+        
         fingerNames.removeAll()
         
-        for i in 0 ..< fingerIds.count {
+        for i in 0 ..< fingerIds[resultPatternSelectedId].count {
             
             // 解放弦の場合
-            if(fingerIds[i] <= 0){
+            if(fingerIds[resultPatternSelectedId][i] <= 0){
                 
                 fingerNames.append("-")
             }
             // それ以外の場合
             else {
                 
-                fingerNames.append(KB.MUSIC_GUITAR_FINGERS_ID_NAMES[fingerIds[i]])
+                fingerNames.append(KB.MUSIC_GUITAR_FINGERS_ID_NAMES[fingerIds[resultPatternSelectedId][i]])
             }
         }
     }
@@ -523,6 +554,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
                 
                 // 背景色を描画する
                 self.initBgImageViews()
+
+                // 運指画面を描画する
+                self.initResultPatterViews ()
                 
                 // ダイアログを閉じる
                 alert.dismiss(animated: true, completion: nil)
@@ -554,6 +588,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // 背景色を描画する
             initBgImageViews()
+            
+            // 運指画面を描画する
+            initResultPatterViews ()
         }
         // それ以外の場合、アラートを表示する
         else {
@@ -594,6 +631,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // 背景色を描画する
             initBgImageViews()
+            
+            // 運指画面を描画する
+            initResultPatterViews ()
         }
         // 配列の範囲外の場合、音を追加する
         else {
@@ -642,6 +682,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
                     // 背景色を描画する
                     self.initBgImageViews()
                     
+                    // 運指画面を描画する
+                    self.initResultPatterViews ()
+                    
                     // ダイアログを閉じる
                     alert.dismiss(animated: true, completion: nil)
                 })
@@ -685,6 +728,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             
             // 背景色を描画する
             initBgImageViews()
+            
+            // 運指画面を描画する
+            initResultPatterViews ()
         }
         // それ以外の場合、アラートを表示する
         else {
@@ -732,8 +778,8 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         let startTime = Date().timeIntervalSince1970
         
         // 検索結果を取得する
-        var tmpStringFretFingerIds : [[Int]] = []
-        tmpStringFretFingerIds = KB.getOptimiseStringIdFretIdFingerIds(tones: toneIds, numSearch: 100000)
+        var tmpStringFretFingerIds : [[[Int]]] = []
+        tmpStringFretFingerIds = KB.getOptimiseStringIdFretIdFingerIds(tones: toneIds, numSearch: 100000, numPattern: 5)
 
         // 検索所要時間を算出する
         let procTime = Date().timeIntervalSince1970 - startTime
@@ -746,12 +792,30 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         fretIds.removeAll()
         fingerIds.removeAll()
         
+        // 選択対象の音階値を一番最初に戻す
+        resultsSelectedId = 0
+        lastChangedSelectedId = KB.PICKERVIEW_STRINGFRETFINGER_TAG
+        
+        // 表示対象の運指パターンを最初にする
+        resultPatternSelectedId = 0
+        
         // フィールド変数に結果を格納する
         for i in 0 ..< tmpStringFretFingerIds.count {
+
+            var tmpStringIds : [Int] = []
+            var tmpFretIds : [Int] = []
+            var tmpFingerIds : [Int] = []
             
-            stringIds.append(tmpStringFretFingerIds[i][0])
-            fretIds.append(tmpStringFretFingerIds[i][1])
-            fingerIds.append(tmpStringFretFingerIds[i][2])
+            for j in 0 ..< tmpStringFretFingerIds[resultPatternSelectedId].count {
+                
+                tmpStringIds.append(tmpStringFretFingerIds[i][j][0])
+                tmpFretIds.append(tmpStringFretFingerIds[i][j][1])
+                tmpFingerIds.append(tmpStringFretFingerIds[i][j][2])
+            }
+            
+            stringIds.append(tmpStringIds)
+            fretIds.append(tmpFretIds)
+            fingerIds.append(tmpFingerIds)
         }
         
         // ダイアログを表示する
@@ -778,6 +842,9 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         
         // 背景色を描画する
         initBgImageViews()
+        
+        // 運指画面を描画する
+        initResultPatterViews ()
     }
     
     // 入力状態によってボタン描画を反映する
@@ -863,94 +930,105 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         button.layer.masksToBounds = true
     }
     
+    // 運指パターン1が押された時の処理
+    @IBAction func onPattern1Pushed () {
+        
+        onPatternPushed(patternId : 1)
+    }
+    
+    // 運指パターン2が押された時の処理
+    @IBAction func onPattern2Pushed () {
+        
+        onPatternPushed(patternId : 2)
+    }
+    
+    // 運指パターン3が押された時の処理
+    @IBAction func onPattern3Pushed () {
+        
+        onPatternPushed(patternId : 3)
+    }
+
+    // 運指パターン4が押された時の処理
+    @IBAction func onPattern4Pushed () {
+        
+        onPatternPushed(patternId : 4)
+    }
+
+    // 運指パターン5が押された時の処理
+    @IBAction func onPattern5Pushed () {
+        
+        onPatternPushed(patternId : 5)
+    }
+    
+    // 運指パターンが押された時の処理
+    // @param patternId パターンID
+    func onPatternPushed (patternId : Int) {
+        
+        // 選択IDを更新する
+        if(patternId - 1 < stringIds.count){
+            
+            resultPatternSelectedId = patternId - 1
+            lastChangedSelectedId = KB.PICKERVIEW_STRINGFRETFINGER_TAG
+
+            // PickerViewの同期を取る
+            syncPickerView()
+            
+            // ボタンを再描画する
+            syncButtonView()
+            
+            // フレットイメージを描画する
+            initFretView()
+            
+            // 背景色を描画する
+            initBgImageViews()
+            
+            // 運指画面を描画する
+            initResultPatterViews ()
+
+        }
+        // 押せない場合、ダイアログを表示する
+        else {
+            
+            // ダイアログを表示する
+            let alert = UIAlertController(title: "読み込みエラー", message: "運指結果を読み込めませんでした。", preferredStyle: .alert)
+            let tmpAction = UIAlertAction(title: "OK", style: .default, handler: { (action) in
+                
+                // ダイアログを閉じる
+                alert.dismiss(animated: true, completion: nil)
+            })
+            alert.addAction(tmpAction)
+            self.present(alert, animated: true, completion: nil)
+        }
+    }
+    
     /*------- フレットビューに関する処理　-------*/
 
     // フレットのイメージをセットする
     func initFretView () {
         
         // 表示対象のフレットがない場合は、非表示にする
-        if(screenStateId == KB.SCREEN_STATE_ID_ONLY_TONES_VISIBLE || stringIds.count == 0
-            || resultsSelectedId < 0 || stringIds.count <= resultsSelectedId){
+        if(screenStateId == KB.SCREEN_STATE_ID_ONLY_TONES_VISIBLE){
             
-            stringId0Label.isHidden = true
-            stringId1Label.isHidden = true
-            stringId2Label.isHidden = true
-            stringId3Label.isHidden = true
-            stringId4Label.isHidden = true
-            stringId5Label.isHidden = true
-            openStringId0Label.isHidden = true
-            openStringId1Label.isHidden = true
-            openStringId2Label.isHidden = true
-            openStringId3Label.isHidden = true
-            openStringId4Label.isHidden = true
-            openStringId5Label.isHidden = true
-            fretId0Label.isHidden = true
-            fretId1Label.isHidden = true
-            fretId2Label.isHidden = true
-            fret00ImageView.isHidden = true
-            fret01ImageView.isHidden = true
-            fret02ImageView.isHidden = true
-            fret10ImageView.isHidden = true
-            fret11ImageView.isHidden = true
-            fret12ImageView.isHidden = true
-            fret20ImageView.isHidden = true
-            fret21ImageView.isHidden = true
-            fret22ImageView.isHidden = true
-            fret30ImageView.isHidden = true
-            fret31ImageView.isHidden = true
-            fret32ImageView.isHidden = true
-            fret40ImageView.isHidden = true
-            fret41ImageView.isHidden = true
-            fret42ImageView.isHidden = true
-            fret50ImageView.isHidden = true
-            fret51ImageView.isHidden = true
-            fret52ImageView.isHidden = true
-            fretFretLabel.isHidden = true
-            fretStringLabel.isHidden = true
+            setFretViewsHidden(isHidden: true)
+            return
+        }
+        if(stringIds.count <= resultPatternSelectedId){
             
+            setFretViewsHidden(isHidden: true)
+            return
+        }
+        if(stringIds[resultPatternSelectedId].count == 0 || stringIds[resultPatternSelectedId].count <= resultsSelectedId){
+            
+            setFretViewsHidden(isHidden: true)
             return
         }
         
         // フレットビューを表示状態にする
-        stringId0Label.isHidden = false
-        stringId1Label.isHidden = false
-        stringId2Label.isHidden = false
-        stringId3Label.isHidden = false
-        stringId4Label.isHidden = false
-        stringId5Label.isHidden = false
-        openStringId0Label.isHidden = false
-        openStringId1Label.isHidden = false
-        openStringId2Label.isHidden = false
-        openStringId3Label.isHidden = false
-        openStringId4Label.isHidden = false
-        openStringId5Label.isHidden = false
-        fretId0Label.isHidden = false
-        fretId1Label.isHidden = false
-        fretId2Label.isHidden = false
-        fret00ImageView.isHidden = false
-        fret01ImageView.isHidden = false
-        fret02ImageView.isHidden = false
-        fret10ImageView.isHidden = false
-        fret11ImageView.isHidden = false
-        fret12ImageView.isHidden = false
-        fret20ImageView.isHidden = false
-        fret21ImageView.isHidden = false
-        fret22ImageView.isHidden = false
-        fret30ImageView.isHidden = false
-        fret31ImageView.isHidden = false
-        fret32ImageView.isHidden = false
-        fret40ImageView.isHidden = false
-        fret41ImageView.isHidden = false
-        fret42ImageView.isHidden = false
-        fret50ImageView.isHidden = false
-        fret51ImageView.isHidden = false
-        fret52ImageView.isHidden = false
-        fretFretLabel.isHidden = false
-        fretStringLabel.isHidden = false
+        setFretViewsHidden(isHidden: false)
         
         // 表示対象の弦ID、フレットIDを取得する
-        let currentStringId = stringIds[resultsSelectedId]
-        let currentFretId = fretIds[resultsSelectedId]
+        let currentStringId = stringIds[resultPatternSelectedId][resultsSelectedId]
+        let currentFretId = fretIds[resultPatternSelectedId][resultsSelectedId]
         
         // フレット番号のラベルをセットする
         var midFretId : Int = currentFretId
@@ -1009,6 +1087,188 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
         fret52ImageView.image = (currentStringId == 5 && currentFretId - (midFretId - 2) == 3) ? UIImage(named: KB.MUSIC_GUITAR_FRET_PRESSING_IMAGEPATH) : UIImage(named: KB.MUSIC_GUITAR_FRET_NOT_PRESSING_IMAGEPATH)
     }
     
+    // フレットビューの表示状態を切り替える
+    // @param isHidden 表示の有無
+    func setFretViewsHidden (isHidden : Bool) {
+        
+        stringId0Label.isHidden = isHidden
+        stringId1Label.isHidden = isHidden
+        stringId2Label.isHidden = isHidden
+        stringId3Label.isHidden = isHidden
+        stringId4Label.isHidden = isHidden
+        stringId5Label.isHidden = isHidden
+        openStringId0Label.isHidden = isHidden
+        openStringId1Label.isHidden = isHidden
+        openStringId2Label.isHidden = isHidden
+        openStringId3Label.isHidden = isHidden
+        openStringId4Label.isHidden = isHidden
+        openStringId5Label.isHidden = isHidden
+        fretId0Label.isHidden = isHidden
+        fretId1Label.isHidden = isHidden
+        fretId2Label.isHidden = isHidden
+        fret00ImageView.isHidden = isHidden
+        fret01ImageView.isHidden = isHidden
+        fret02ImageView.isHidden = isHidden
+        fret10ImageView.isHidden = isHidden
+        fret11ImageView.isHidden = isHidden
+        fret12ImageView.isHidden = isHidden
+        fret20ImageView.isHidden = isHidden
+        fret21ImageView.isHidden = isHidden
+        fret22ImageView.isHidden = isHidden
+        fret30ImageView.isHidden = isHidden
+        fret31ImageView.isHidden = isHidden
+        fret32ImageView.isHidden = isHidden
+        fret40ImageView.isHidden = isHidden
+        fret41ImageView.isHidden = isHidden
+        fret42ImageView.isHidden = isHidden
+        fret50ImageView.isHidden = isHidden
+        fret51ImageView.isHidden = isHidden
+        fret52ImageView.isHidden = isHidden
+        fretFretLabel.isHidden = isHidden
+        fretStringLabel.isHidden = isHidden
+    }
+    
+    
+    
+    /*------- 運指パターン描画に関する処理 ------*/
+
+    func initResultPatterViews () {
+
+        // 運指のパターン数に応じて、色を変更
+        switch(stringIds.count) {
+            
+        case 0:
+            resultPattern1Button.isHidden = true
+            resultPattern2Button.isHidden = true
+            resultPattern3Button.isHidden = true
+            resultPattern4Button.isHidden = true
+            resultPattern5Button.isHidden = true
+            
+        case 1:
+            resultPattern1Button.isHidden = false
+            resultPattern2Button.isHidden = true
+            resultPattern3Button.isHidden = true
+            resultPattern4Button.isHidden = true
+            resultPattern5Button.isHidden = true
+            
+            resultPattern1Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            
+        case 2:
+            resultPattern1Button.isHidden = false
+            resultPattern2Button.isHidden = false
+            resultPattern3Button.isHidden = true
+            resultPattern4Button.isHidden = true
+            resultPattern5Button.isHidden = true
+
+            resultPattern1Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern2Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            
+        case 3:
+            resultPattern1Button.isHidden = false
+            resultPattern2Button.isHidden = false
+            resultPattern3Button.isHidden = false
+            resultPattern4Button.isHidden = true
+            resultPattern5Button.isHidden = true
+
+            resultPattern1Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern2Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern3Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+        
+        case 4:
+            resultPattern1Button.isHidden = false
+            resultPattern2Button.isHidden = false
+            resultPattern3Button.isHidden = false
+            resultPattern4Button.isHidden = false
+            resultPattern5Button.isHidden = true
+
+            resultPattern1Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern2Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern3Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern4Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            
+        case 5:
+            resultPattern1Button.isHidden = false
+            resultPattern2Button.isHidden = false
+            resultPattern3Button.isHidden = false
+            resultPattern4Button.isHidden = false
+            resultPattern5Button.isHidden = false
+
+            resultPattern1Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern2Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern3Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern4Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            resultPattern5Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_ORIGINAL), for: .normal)
+            
+        default:
+            break
+        }
+        
+        // 各ボタンに枠線などをつける
+        resultPattern1Button.layer.borderWidth = 1
+        resultPattern1Button.layer.borderColor = UIColor.darkGray.cgColor
+        resultPattern1Button.setTitleColor(UIColor.darkGray, for: .normal)
+        resultPattern1Button.layer.cornerRadius = 10
+        resultPattern1Button.layer.masksToBounds = true
+        
+        resultPattern2Button.layer.borderWidth = 1
+        resultPattern2Button.layer.borderColor = UIColor.darkGray.cgColor
+        resultPattern2Button.setTitleColor(UIColor.darkGray, for: .normal)
+        resultPattern2Button.layer.cornerRadius = 10
+        resultPattern2Button.layer.masksToBounds = true
+        
+        resultPattern3Button.layer.borderWidth = 1
+        resultPattern3Button.layer.borderColor = UIColor.darkGray.cgColor
+        resultPattern3Button.setTitleColor(UIColor.darkGray, for: .normal)
+        resultPattern3Button.layer.cornerRadius = 10
+        resultPattern3Button.layer.masksToBounds = true
+        
+        resultPattern4Button.layer.borderWidth = 1
+        resultPattern4Button.layer.borderColor = UIColor.darkGray.cgColor
+        resultPattern4Button.setTitleColor(UIColor.darkGray, for: .normal)
+        resultPattern4Button.layer.cornerRadius = 10
+        resultPattern4Button.layer.masksToBounds = true
+        
+        resultPattern5Button.layer.borderWidth = 1
+        resultPattern5Button.layer.borderColor = UIColor.darkGray.cgColor
+        resultPattern5Button.setTitleColor(UIColor.darkGray, for: .normal)
+        resultPattern5Button.layer.cornerRadius = 10
+        resultPattern5Button.layer.masksToBounds = true
+
+        
+        // 現在選択中の運指パターンは色をつける
+        switch(resultPatternSelectedId) {
+            
+        case 0:
+            resultPattern1Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_GREEN), for: .normal)
+            resultPattern1Button.layer.borderColor = UIColor.clear.cgColor
+            resultPattern1Button.setTitleColor(UIColor.black, for: .normal)
+            
+        case 1:
+            resultPattern2Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_GREEN), for: .normal)
+            resultPattern2Button.layer.borderColor = UIColor.clear.cgColor
+            resultPattern2Button.setTitleColor(UIColor.black, for: .normal)
+            
+        case 2:
+            resultPattern3Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_GREEN), for: .normal)
+            resultPattern3Button.layer.borderColor = UIColor.clear.cgColor
+            resultPattern3Button.setTitleColor(UIColor.black, for: .normal)
+            
+        case 3:
+            resultPattern4Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_GREEN), for: .normal)
+            resultPattern4Button.layer.borderColor = UIColor.clear.cgColor
+            resultPattern4Button.setTitleColor(UIColor.black, for: .normal)
+            
+        case 4:
+            resultPattern5Button.setBackgroundImage(UIImage(named : KB.IMAGE_NAME_FELT_BACKGROUND_GREEN), for: .normal)
+            resultPattern5Button.layer.borderColor = UIColor.clear.cgColor
+            resultPattern5Button.setTitleColor(UIColor.black, for: .normal)
+            
+        default:
+            break
+        }
+    }
+
+
     /*------- バックグラウンドに関する処理　-------*/
     
     // バックグランド背景色を調整する
@@ -1022,6 +1282,7 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             tonesTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
             resultBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
             resultTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
+            fretBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
             
         // 最後に結果画面を操作した場合
         case KB.PICKERVIEW_STRINGFRETFINGER_TAG:
@@ -1029,9 +1290,39 @@ class MainViewController: UIViewController, UIPickerViewDelegate, UIPickerViewDa
             tonesTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_BLUE)
             resultBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
             resultTitleBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
-
+            fretBgImageView.image = UIImage(named: KB.IMAGE_NAME_FELT_BACKGROUND_YELLOW)
+            
         default:
             break
         }
+    }
+    
+    // タイトルラベル領域を初期化する
+    func initTitleLabelViews () {
+        
+        // 名称ラベルを90度回転させる
+        stringLabel.transform = CGAffineTransform(rotationAngle: rotationAngle)
+        fretLabel.transform = CGAffineTransform(rotationAngle: rotationAngle)
+        fingerLabel.transform = CGAffineTransform(rotationAngle: rotationAngle)
+        toneLabel.transform = CGAffineTransform(rotationAngle: rotationAngle)
+
+        // バックグラウンドに枠線をつける
+        tonesBgImageView.layer.borderWidth = 1
+        tonesBgImageView.layer.borderColor = UIColor.lightGray.cgColor
+        tonesTitleBgImageView.layer.borderWidth = 1
+        tonesTitleBgImageView.layer.borderColor = UIColor.lightGray.cgColor
+        resultBgImageView.layer.borderWidth = 1
+        resultBgImageView.layer.borderColor = UIColor.lightGray.cgColor
+        resultTitleBgImageView.layer.borderWidth = 1
+        resultTitleBgImageView.layer.borderColor = UIColor.lightGray.cgColor
+        
+        // フレット領域を各丸にし、枠線をつける
+        fretBgImageView.layer.cornerRadius = 10
+        fretBgImageView.layer.masksToBounds = true
+        fretBgImageView.layer.borderWidth = 1
+        fretBgImageView.layer.borderColor = UIColor.lightGray.cgColor
+        
+        // 冒頭説明テキストを15度回転させる
+        howtoLabel.transform = CGAffineTransform(rotationAngle: rotationAngle / 6)
     }
 }
